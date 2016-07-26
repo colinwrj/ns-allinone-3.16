@@ -1,0 +1,30 @@
+<Test>
+  <Name>routing-aodv-regression</Name>
+  <Result>PASS</Result>
+  <Time real="1.210" user="0.930" system="0.040"/>
+  <Test>
+    <Name>AODV chain regression test</Name>
+    <Result>PASS</Result>
+    <Time real="0.370" user="0.210" system="0.030"/>
+  </Test>
+  <Test>
+    <Name>AODV chain regression test</Name>
+    <Result>PASS</Result>
+    <Time real="0.070" user="0.040" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Bug 772 UDP and TCP chain regression test</Name>
+    <Result>PASS</Result>
+    <Time real="0.270" user="0.220" system="0.010"/>
+  </Test>
+  <Test>
+    <Name>Bug 772 UDP and TCP chain regression test</Name>
+    <Result>PASS</Result>
+    <Time real="0.490" user="0.460" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Ping 127.0.0.1 test</Name>
+    <Result>PASS</Result>
+    <Time real="0.010" user="0.000" system="0.000"/>
+  </Test>
+</Test>

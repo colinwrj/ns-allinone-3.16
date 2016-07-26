@@ -1,0 +1,10 @@
+<Test>
+  <Name>red-queue</Name>
+  <Result>PASS</Result>
+  <Time real="0.040" user="0.040" system="0.000"/>
+  <Test>
+    <Name>Sanity check on the red queue implementation</Name>
+    <Result>PASS</Result>
+    <Time real="0.040" user="0.040" system="0.000"/>
+  </Test>
+</Test>

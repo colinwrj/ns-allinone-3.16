@@ -1,0 +1,10 @@
+<Test>
+  <Name>rv-battery-model</Name>
+  <Result>PASS</Result>
+  <Time real="6.260" user="5.970" system="0.000"/>
+  <Test>
+    <Name>RV battery model battery lifetime test case.</Name>
+    <Result>PASS</Result>
+    <Time real="6.260" user="5.970" system="0.000"/>
+  </Test>
+</Test>

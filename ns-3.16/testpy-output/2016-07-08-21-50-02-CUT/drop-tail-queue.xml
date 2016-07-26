@@ -1,0 +1,50 @@
+<Test>
+  <Name>drop-tail-queue</Name>
+  <Result>FAIL</Result>
+  <Time real="0.010" user="0.000" system="0.000"/>
+  <Test>
+    <Name>Sanity check on the drop tail queue implementation</Name>
+    <Result>FAIL</Result>
+    <Time real="0.010" user="0.000" system="0.000"/>
+      <FailureDetails>
+        <Condition>queue-&gt;GetNPackets () (actual) == 3 (limit)</Condition>
+        <Actual>4</Actual>
+        <Limit>3</Limit>
+        <Message>There should be still three packets in there</Message>
+        <File>../src/network/test/drop-tail-queue-test-suite.cc</File>
+        <Line>57</Line>
+      </FailureDetails>
+      <FailureDetails>
+        <Condition>queue-&gt;GetNPackets () (actual) == 2 (limit)</Condition>
+        <Actual>3</Actual>
+        <Limit>2</Limit>
+        <Message>There should be two packets in there</Message>
+        <File>../src/network/test/drop-tail-queue-test-suite.cc</File>
+        <Line>63</Line>
+      </FailureDetails>
+      <FailureDetails>
+        <Condition>queue-&gt;GetNPackets () (actual) == 1 (limit)</Condition>
+        <Actual>2</Actual>
+        <Limit>1</Limit>
+        <Message>There should be one packet in there</Message>
+        <File>../src/network/test/drop-tail-queue-test-suite.cc</File>
+        <Line>68</Line>
+      </FailureDetails>
+      <FailureDetails>
+        <Condition>queue-&gt;GetNPackets () (actual) == 0 (limit)</Condition>
+        <Actual>1</Actual>
+        <Limit>0</Limit>
+        <Message>There should be no packets in there</Message>
+        <File>../src/network/test/drop-tail-queue-test-suite.cc</File>
+        <Line>73</Line>
+      </FailureDetails>
+      <FailureDetails>
+        <Condition>(p == 0) (actual) == true (limit)</Condition>
+        <Actual>0</Actual>
+        <Limit>1</Limit>
+        <Message>There are really no packets in there</Message>
+        <File>../src/network/test/drop-tail-queue-test-suite.cc</File>
+        <Line>77</Line>
+      </FailureDetails>
+  </Test>
+</Test>

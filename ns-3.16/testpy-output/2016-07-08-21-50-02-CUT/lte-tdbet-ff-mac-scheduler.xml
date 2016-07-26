@@ -1,0 +1,135 @@
+<Test>
+  <Name>lte-tdbet-ff-mac-scheduler</Name>
+  <Result>PASS</Result>
+  <Time real="56.500" user="56.010" system="0.000"/>
+  <Test>
+    <Name>1 UEs, distance 0 m</Name>
+    <Result>PASS</Result>
+    <Time real="0.770" user="0.820" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>3 UEs, distance 0 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.150" user="1.150" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>6 UEs, distance 0 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.930" user="1.910" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>12 UEs, distance 0 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.420" user="3.350" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>15 UEs, distance 0 m</Name>
+    <Result>PASS</Result>
+    <Time real="4.320" user="4.250" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>1 UEs, distance 3000 m</Name>
+    <Result>PASS</Result>
+    <Time real="0.780" user="0.770" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>3 UEs, distance 3000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.200" user="1.170" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>6 UEs, distance 3000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.980" user="1.980" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>12 UEs, distance 3000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.550" user="3.510" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>15 UEs, distance 3000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.850" user="3.830" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>1 UEs, distance 6000 m</Name>
+    <Result>PASS</Result>
+    <Time real="0.640" user="0.640" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>3 UEs, distance 6000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.120" user="1.110" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>6 UEs, distance 6000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.800" user="1.790" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>12 UEs, distance 6000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.220" user="3.190" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>15 UEs, distance 6000 m</Name>
+    <Result>PASS</Result>
+    <Time real="4.080" user="4.050" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>1 UEs, distance 9000 m</Name>
+    <Result>PASS</Result>
+    <Time real="0.640" user="0.630" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>3 UEs, distance 9000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.130" user="1.120" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>6 UEs, distance 9000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.800" user="1.780" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>12 UEs, distance 9000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.170" user="3.140" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>15 UEs, distance 9000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.800" user="3.770" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>1 UEs, distance 15000 m</Name>
+    <Result>PASS</Result>
+    <Time real="0.680" user="0.680" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>3 UEs, distance 15000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.220" user="1.210" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>6 UEs, distance 15000 m</Name>
+    <Result>PASS</Result>
+    <Time real="1.970" user="1.940" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>12 UEs, distance 15000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.040" user="3.020" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>15 UEs, distance 15000 m</Name>
+    <Result>PASS</Result>
+    <Time real="3.680" user="3.650" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>distances (m) = [ 0 3000 6000 9000 15000 ]</Name>
+    <Result>PASS</Result>
+    <Time real="1.560" user="1.550" system="0.000"/>
+  </Test>
+</Test>

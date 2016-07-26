@@ -1,0 +1,20 @@
+<Test>
+  <Name>buildings-shadowing-test</Name>
+  <Result>PASS</Result>
+  <Time real="4.160" user="3.660" system="0.110"/>
+  <Test>
+    <Name>SHADOWING calculation: Outdoor Shadowing</Name>
+    <Result>PASS</Result>
+    <Time real="1.340" user="1.290" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>SHADOWING calculation: Indoor Shadowing</Name>
+    <Result>PASS</Result>
+    <Time real="1.330" user="1.120" system="0.060"/>
+  </Test>
+  <Test>
+    <Name>SHADOWING calculation: Indoor -&gt; Outdoor Shadowing</Name>
+    <Result>PASS</Result>
+    <Time real="1.490" user="1.250" system="0.050"/>
+  </Test>
+</Test>

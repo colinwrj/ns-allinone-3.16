@@ -1,0 +1,25 @@
+<Test>
+  <Name>devices-wifi</Name>
+  <Result>PASS</Result>
+  <Time real="0.150" user="0.120" system="0.000"/>
+  <Test>
+    <Name>Wifi</Name>
+    <Result>PASS</Result>
+    <Time real="0.150" user="0.120" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>QosUtilsIsOldPacket</Name>
+    <Result>PASS</Result>
+    <Time real="0.000" user="0.000" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>InterferenceHelperSequence</Name>
+    <Result>PASS</Result>
+    <Time real="0.000" user="0.000" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Test case for Bug 555</Name>
+    <Result>PASS</Result>
+    <Time real="0.000" user="0.000" system="0.000"/>
+  </Test>
+</Test>

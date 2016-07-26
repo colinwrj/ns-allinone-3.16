@@ -1,0 +1,15 @@
+<Test>
+  <Name>basic-energy-model</Name>
+  <Result>PASS</Result>
+  <Time real="0.200" user="0.200" system="0.000"/>
+  <Test>
+    <Name>Basic energy model update remaining energy test case</Name>
+    <Result>PASS</Result>
+    <Time real="0.010" user="0.000" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Basic energy model energy depletion test case</Name>
+    <Result>PASS</Result>
+    <Time real="0.190" user="0.200" system="0.000"/>
+  </Test>
+</Test>

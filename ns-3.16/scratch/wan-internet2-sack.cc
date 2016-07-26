@@ -433,7 +433,100 @@ CwndChange (std::string context, uint32_t oldCwnd, uint32_t newCwnd)
       cwndofs<<Simulator::Now().GetSeconds() << "\t" << newCwnd<<"\n";
 }*/
 
+//Ptr<OutputStreamWrapper> rtofs = Create<OutputStreamWrapper>("routingtables.txt", ios::app);
 
+/*double find_min_bw(int source, int dest){
+  Ptr<Node> = nodes.Get(sourcs);
+  Ptr<Node> = nodes.Get(dest);
+
+}*/
+
+/*int SearchLink(int sender, int dest)
+{
+  int NODES, LINKS;
+  FILE *fp = fopen(topofile, "r");
+  err = fscanf(fp, "%d", &NODES);
+  err = fscanf(fp, "%d", &LINKS);
+  int linkDelays[LINKS];
+  int linkBandwidths[LINKS];
+
+  int n1[LINKS], n2[LINKS];
+  for(int i=0; i<LINKS; i++)
+  {
+    err=fscanf(fp, "%d", &n1[i]);
+    err=fscanf(fp, "%d", &n2[i]);
+    err=fscanf(fp, "%d", &linkBandwidths[i]);
+    err=fscanf(fp, "%d", &linkDelays[i]);
+
+  }
+
+  for(int i = 0; i < LINKS; i++){
+    if()
+  }
+}*/
+static uint32_t total_bytes[500][500] = {1};
+
+
+// Callback
+void TxTrace(string context, Ptr<Packet const> packet)
+{
+  int devI = 0, ifaceI = 0;
+  cout<<context<<endl;
+
+  total_bytes[devI][ifaceI]+=packet->GetSize();
+
+}
+
+static void
+SetupTxTrace(int dev_id, int ith_id)
+{
+   ostringstream oss;
+   oss << "/NodeList/"<<dev_id<<"/DeviceList/"<<ith_id<<"/$ns3::PointToPointNetDevice/TxQueue/Dequeue";
+   Config::Connect (oss.str (), MakeCallback (&TxTrace));
+}
+
+void CalcLinkUtil(Ptr<NodeContainer> nodes)
+{
+   //compute link utilisation
+  int node;
+  node = 0;
+
+  // For every node in the node container "nodes"
+  for(NodeContainer::Iterator i = (*nodes).Begin (); i != (*nodes).End (); ++i)
+  {
+    Ptr<Node> n= *i;
+
+    // For every interface on node "n"
+    for(uint32_t ith = 0; ith < n->GetNDevices(); ++ith)
+    {
+      cout<<"Interface " << "\t" << ith << "\t" << "bytes" << total_bytes[node][ith];
+      ith++;
+    }
+    node++;
+  }
+
+  //Simulator::Schedule (Seconds (0.05), &CalcLinkUtil(nodes));
+}
+
+/*void PrintRoutingTable(Ptr<Node> node)
+{
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
+  Ptr<GlobalRouter> router = node->GetObject<GlobalRouter>();
+  Ptr<Ipv4RoutingProtocol> rp = ipv4->GetRoutingProtocol();
+  //uint32_t num_routes = rp->GetNRoutes();
+  rp->PrintRoutingTable(rtofs);
+  Ipv4RoutingTableEntry entry;
+  rtofs<<"Routing table for device:"<<Names::FindName(node)<<"\n";
+  rtofs<<"Destination\tMask\t\tGateway\t\tface\n";
+  for(uint32_t i = 0; i < num_routes; i++){
+    entry = globalrouting->GetRoute(i);
+    rtofs<<entry.GetDestNetwork()<<"\t"
+    <<entry.GetDestNetworkMask()<<"\t"
+    <<entry.GetGateway()<<"\t\t"
+    <<entry.GetInterface()<<"\t"
+    <<"\t"
+    <<"\n";
+  }*/
 
 
 
@@ -500,9 +593,6 @@ int main (int argc, char *argv[])
   FILE *fp2 = fopen(endhostfile,"r");
 
   int err;
-
-
-
 
 
   //reading topology
@@ -629,6 +719,20 @@ int main (int argc, char *argv[])
   cout<<"\n\n\nCore addresses set\n\n\n";
 
   Ipv4GlobalRoutingHelper::PopulateRoutingTables();
+  //Ipv4StaticGlobalRoutingHelper Ipv4;
+  //AsciiTraceHelper ascii;
+  //Ptr<OutputStreamWrapper> routingStream = ascii.CreateFileStream("routingtable.tr");
+
+  /*for(int counter = 0; counter < NODES; counter++){
+      nodes.Get(1)->GetObject<Ipv4>()->GetObject<Ipv4RoutingProtocol>()->PrintRoutingTable(routingStream);
+  }
+  for(int i = 0; i < NODES; i++){
+    PrintRoutingTable(nodes.Get(i));
+
+  }*/
+
+
+  //Ipv4GlobalRoutingHelper::PrintRoutingTableAllAt(Seconds(0.1), routingStream);
 
   cout<<"\n\n\nAll routes included...I am all set :)\n\n\n";
 
@@ -654,6 +758,29 @@ int main (int argc, char *argv[])
 
   RecordLinkUtil();
 
+  //prepare for Link utilization calculation
+  NetDeviceContainer devs[LINKS];
+  for(int i = 0; i < LINKS; i++){
+    for(NodeContainer::Iterator j = p2p[i].Begin(); j != p2p[i].End(); j++){
+      Ptr<Node> node = *j;
+      for(uint32_t k = 0; k < node->GetNDevices(); k++){
+        devs[i].Add(node->GetDevice(k));
+      }
+    }
+  }
+
+  //Setup trace on all devices
+  for(int i = 0; i < LINKS; i++){
+    for(NetDeviceContainer::Iterator j = devs[i].Begin(); j != devs[i].End(); j++){
+      Ptr<NetDevice> dev = *j;
+      SetupTxTrace(dev->GetNode()->GetId(), dev->GetIfIndex());
+    }
+  }
+
+
+  //CalcLinkUtil(nodes);
+  Simulator::Schedule(Seconds (0.05), &CalcLinkUtil(nodes));
+
   for(uint32_t i = 0; i<num; i++)
   {
 
@@ -666,7 +793,6 @@ int main (int argc, char *argv[])
     if(starttime < endtime)
     {
         Address sinkAddress(InetSocketAddress(interfaces[host_interfaces[dest]].GetAddress(host_interfaceIdx[dest]), ports[dest]++));
-
 
         sendapp1[i] = CreateObject<Sender>();
         sock1[i] = Socket::CreateSocket(nodes.Get(sender), TcpSocketFactory::GetTypeId());
@@ -700,7 +826,6 @@ int main (int argc, char *argv[])
   /*Ptr<FlowMonitor> flowmon;
   FlowMonitorHelper flowmonHelper;
   flowmon = flowmonHelper.InstallAll ();*/
-
 
 
   //AsciiTraceHelper ascii;

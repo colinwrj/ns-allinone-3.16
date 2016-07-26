@@ -1,0 +1,10 @@
+<Test>
+  <Name>ipv4-fragmentation</Name>
+  <Result>PASS</Result>
+  <Time real="0.070" user="0.020" system="0.020"/>
+  <Test>
+    <Name>Verify the IPv4 layer 3 protocol fragmentation and reassembly</Name>
+    <Result>PASS</Result>
+    <Time real="0.070" user="0.020" system="0.020"/>
+  </Test>
+</Test>

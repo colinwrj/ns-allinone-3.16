@@ -1,0 +1,25 @@
+<Test>
+  <Name>random-number-generators</Name>
+  <Result>PASS</Result>
+  <Time real="3.160" user="3.280" system="0.000"/>
+  <Test>
+    <Name>Uniform Random Number Generator</Name>
+    <Result>PASS</Result>
+    <Time real="0.450" user="0.540" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Normal Random Number Generator</Name>
+    <Result>PASS</Result>
+    <Time real="0.730" user="0.750" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Exponential Random Number Generator</Name>
+    <Result>PASS</Result>
+    <Time real="1.170" user="1.170" system="0.000"/>
+  </Test>
+  <Test>
+    <Name>Pareto Random Number Generator</Name>
+    <Result>PASS</Result>
+    <Time real="0.810" user="0.820" system="0.000"/>
+  </Test>
+</Test>
