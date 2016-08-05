@@ -403,12 +403,17 @@ ofstream linkutilfs("linkutil.txt", ios::app);
 EventId linkutilevent;
 void RecordLinkUtil()
 {
+  ofstream off("Link_Util.txt", ios::trunc);
   for(int i=0; i<LINKS; i++)
   {
-      linkutilfs<<Simulator::Now().GetSeconds()<<"\t"<<i<<"\t"<<linkutil[i]<<"\n";
+      off<<Simulator::Now().GetSeconds()<<"\t"<<i<<"\t"<<linkutil[i]*20/1000000<<"\n";
+      linkutilfs<<Simulator::Now().GetSeconds()<<"\t"<<i<<"\t"<<linkutil[i]*20/1000000<<"\n";
+      cout<<Simulator::Now().GetSeconds()<<"\t"<<i<<"\t"<<linkutil[i]*20/1048576<<"\n";
       linkutil[i] = 0;
   }
-  linkutilevent = Simulator::Schedule(Seconds(0.1), RecordLinkUtil);
+  cout<<"start recording"<<endl;
+  off.close();
+  linkutilevent = Simulator::Schedule(Seconds(0.05), RecordLinkUtil);
 }
 
 
@@ -426,11 +431,11 @@ static void PacketDropped(std::string context, Ptr<Packet const> p)
       }
 }
 
-/*ofstream cwndofs("cwnd.txt", ios::app);
-static void
+//ofstream cwndofs("cwnd.txt", ios::app);
+/*static void
 CwndChange (std::string context, uint32_t oldCwnd, uint32_t newCwnd)
 {
-      cwndofs<<Simulator::Now().GetSeconds() << "\t" << newCwnd<<"\n";
+      cout<<Simulator::Now().GetSeconds() << "\t" << newCwnd<<"\n";
 }*/
 
 //Ptr<OutputStreamWrapper> rtofs = Create<OutputStreamWrapper>("routingtables.txt", ios::app);
@@ -464,6 +469,7 @@ CwndChange (std::string context, uint32_t oldCwnd, uint32_t newCwnd)
     if()
   }
 }*/
+/*
 static uint32_t total_bytes[500][500] = {1};
 
 
@@ -507,6 +513,7 @@ void CalcLinkUtil(Ptr<NodeContainer> nodes)
 
   //Simulator::Schedule (Seconds (0.05), &CalcLinkUtil(nodes));
 }
+*/
 
 /*void PrintRoutingTable(Ptr<Node> node)
 {
@@ -758,7 +765,7 @@ int main (int argc, char *argv[])
 
   RecordLinkUtil();
 
-  //prepare for Link utilization calculation
+  /*//prepare for Link utilization calculation
   NetDeviceContainer devs[LINKS];
   for(int i = 0; i < LINKS; i++){
     for(NodeContainer::Iterator j = p2p[i].Begin(); j != p2p[i].End(); j++){
@@ -780,6 +787,7 @@ int main (int argc, char *argv[])
 
   //CalcLinkUtil(nodes);
   Simulator::Schedule(Seconds (0.05), &CalcLinkUtil(nodes));
+  */
 
   for(uint32_t i = 0; i<num; i++)
   {

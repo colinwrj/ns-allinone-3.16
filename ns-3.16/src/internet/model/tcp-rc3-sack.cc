@@ -21,6 +21,8 @@
 #define NS_LOG_APPEND_CONTEXT \
   if (m_node) { std::clog << Simulator::Now ().GetSeconds () << " [node " << m_node->GetId () << "] "; }
 #include <cstdio>
+#include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include "tcp-rc3-sack.h"
@@ -48,6 +50,7 @@ NS_LOG_COMPONENT_DEFINE ("TcpRC3Sack");
 namespace ns3 {
 
 NS_OBJECT_ENSURE_REGISTERED (TcpRC3Sack);
+
 
 TypeId
 TcpRC3Sack::GetTypeId (void)
@@ -82,15 +85,15 @@ TcpRC3Sack::GetTypeId (void)
     .AddAttribute ("PrioritySlots", "Priority Slots",
                     UintegerValue (4),
                     MakeUintegerAccessor (&TcpRC3Sack::m_prioritySlots),
-                    MakeUintegerChecker<uint32_t> ()) 
+                    MakeUintegerChecker<uint32_t> ())
     .AddAttribute ("FlowId", "Flow id",
                     UintegerValue (0),
                     MakeUintegerAccessor (&TcpRC3Sack::m_flowid),
-                    MakeUintegerChecker<uint32_t> ()) 
+                    MakeUintegerChecker<uint32_t> ())
     .AddAttribute ("FlowSize", "Flow Size",
                     UintegerValue (0),
                     MakeUintegerAccessor (&TcpRC3Sack::m_flowsize),
-                    MakeUintegerChecker<uint32_t> ()) 
+                    MakeUintegerChecker<uint32_t> ())
     .AddAttribute ("Priority", "Priority",
                     UintegerValue (0),
                     MakeUintegerAccessor (&TcpRC3Sack::m_priority),
@@ -112,8 +115,8 @@ TcpRC3Sack::GetTypeId (void)
 		    MakeBooleanAccessor (&TcpRC3Sack::m_flushOut),
 		    MakeBooleanChecker ())
     .AddAttribute("DeviceQueue", "Device Queue",
-       PointerValue(), 
-       MakePointerAccessor(&TcpRC3Sack::m_devQueue),     
+       PointerValue(),
+       MakePointerAccessor(&TcpRC3Sack::m_devQueue),
         MakePointerChecker<Queue>())
   .AddTraceSource ("CongestionWindow",
                      "The TCP connection's congestion window",
@@ -150,7 +153,7 @@ TcpRC3Sack::TcpRC3Sack (void)
 TcpRC3Sack::TcpRC3Sack (const TcpRC3Sack& sock)
   : TcpSocketBase (sock),
     drops(0),
-    rc3_p2(false), 
+    rc3_p2(false),
     p2_block_max(0),
     p2_block_bytes_sent(0),
     last_block_seq(0),
@@ -209,7 +212,7 @@ TcpRC3Sack::Window (void)
 {
   NS_LOG_FUNCTION (this);
   if(m_limitedWindow)
-      return std::min ((uint32_t) 2*m_rWnd.Get(), m_cWnd.Get ()); 
+      return std::min ((uint32_t) 2*m_rWnd.Get(), m_cWnd.Get ());
   return m_cWnd.Get ();
 }
 
@@ -263,7 +266,7 @@ TcpRC3Sack::NewAck (const SequenceNumber32& seq)
         double adder = static_cast<double> (m_segmentSize * m_segmentSize) / m_cWnd.Get ();
         adder = std::max (1.0, adder);
         m_cWnd += static_cast<uint32_t> (adder);
-      
+
       if(TraceMe) std::cout << Simulator::Now().GetSeconds() << " " <<  GetNode()->GetId() << "(" << (int32_t) m_priority << ") CWND INCR " << m_cWnd << " " << Window() << std::endl;
       NS_LOG_INFO ("In CongAvoid, updated to cwnd " << m_cWnd << " ssthresh " << m_ssThresh);
     }
@@ -280,7 +283,7 @@ TcpRC3Sack::DupAck (const TcpHeader& t, uint32_t count)
   NS_LOG_FUNCTION (this << count);
   if (count == m_retxThresh && !m_inFastRec)
     { // triple duplicate ack triggers fast retransmit (RFC2582 sec.3 bullet #1)
-      m_ssThresh = std::max (2 * m_segmentSize, static_cast<uint32_t> (BytesInFlight () / 2.0)); 
+      m_ssThresh = std::max (2 * m_segmentSize, static_cast<uint32_t> (BytesInFlight () / 2.0));
       m_cWnd = m_ssThresh + 3 * m_segmentSize;
       m_recover = m_highTxMark;
       m_inFastRec = true;
@@ -327,10 +330,10 @@ TcpRC3Sack::Retransmit (void)
   // According to RFC2581 sec.3.1, upon RTO, ssthresh is set to half of flight
   // size and cwnd is set to 1*MSS, then the lost packet is retransmitted and
   // TCP back to slow start
- 
+
   /***SACK Changes***/
   m_scoreboard.ClearScoreBoard();
-  /*****************/ 
+  /*****************/
 
   m_ssThresh = std::max (2 * m_segmentSize, static_cast<uint32_t> (BytesInFlight () / 2.0));
   m_cWnd = m_segmentSize;
@@ -384,7 +387,7 @@ TcpRC3Sack::GetInitialCwnd (void) const
   return m_initialCWnd;
 }
 
-void 
+void
 TcpRC3Sack::InitializeCwnd (void)
 {
   /*
@@ -395,6 +398,172 @@ TcpRC3Sack::InitializeCwnd (void)
   m_cWnd = m_initialCWnd * m_segmentSize;
 }
 
+//compute the link
+int
+Find_Link(int node1, int node2, int n1[], int n2[]){
+  int i;
+  for(i = 0; (node1 != n1[i] || node2 != n2[i]) && (node1 != n2[i] && node2 != n1[i]); i++){
+
+  }
+  //cout<<"start find link ="<<i<<endl;
+  return i;
+
+}
+
+//Find the available BW
+uint32_t
+Find_BW (int sender, int dest)
+{
+  ifstream rt_in, tp_in, eh_in, lu_in;
+  int routingtable[10][10][10] = {0};
+  int s, d, NODES, LINKS;
+  rt_in.open("routingtable111.txt");
+  if(!rt_in.is_open()) {
+        cout<<"error opening rt"<<endl;
+        return 0;
+  }
+
+
+  //reading the routingtable
+  for(int i = 0, num = 0; i < 90; i++){
+    //fscanf(fp, "%d", &s);
+    //fscanf(fp, "%d", &d);
+    //fscanf(fp, "%d", &num);
+
+    rt_in>>s>>d>>num;
+    //cout<<"s = "<<s<<"d = "<<d<<"num = "<<num<<endl;
+    for(int j = 0; j < num; j++){
+      //fscanf(fp, "%d", &routingtable[s-1][d-1][j]);
+      rt_in>>routingtable[s-1][d-1][j];
+      //cout<<"node:"<<routingtable[s-1][d-1][j]<<endl;
+    }
+  }
+
+
+  //reading topology
+  tp_in.open("internet2-fanout10/internet2-withbandwidthdelay-fanout10.txt");
+  if(!tp_in.is_open())
+  {
+        cout<<"error opening tp"<<endl;
+        return 0;
+  }
+
+  //fscanf(fp1, "%d", &NODES);
+  tp_in>>NODES;
+  //cout<<"NODES = "<<NODES<<endl;
+  //fscanf(fp1, "%d", &LINKS);
+  tp_in>>LINKS;
+  //cout<<"LINKS = "<<LINKS<<endl;
+
+  int linkDelays[LINKS];
+  int linkBandwidths[LINKS];
+
+  int n1[LINKS], n2[LINKS];
+  for(int i=0; i<LINKS; i++)
+  {
+    //fscanf(fp1, "%d", &n1[i]);
+    //fscanf(fp1, "%d", &n2[i]);
+    //fscanf(fp1, "%d", &linkBandwidths[i]);
+    //fscanf(fp1, "%d", &linkDelays[i]);
+    tp_in>>n1[i]>>n2[i]>>linkBandwidths[i]>>linkDelays[i];
+    //cout<<n1[i]<<"\t"<<n2[i]<<"\t"<<linkBandwidths[i]<<"\t"<<linkDelays[i]<<endl;
+
+  }
+
+  //read endhost
+  eh_in.open("internet2-fanout10/internet2-endhosts.txt");
+  if(!eh_in.is_open()) {
+        cout<<"error opening eh"<<endl;
+        return 0;
+  }
+  int host_interfaces[NODES];
+  //int host_interfaceIdx[NODES];
+  int numhosts;
+  int host, link, idx;
+  //fscanf(fp2, "%d", &numhosts);
+  eh_in>>numhosts;
+  for(int i=0; i<numhosts; i++)
+  {
+    //fscanf(fp2, "%d %d %d", &host, &link, &idx);
+    eh_in>>host>>link>>idx;
+    host_interfaces[host] = link;
+    //host_interfaceIdx[host] = idx;
+  }
+
+  //int sender, dest;
+  int link_s, link_d;
+  int node_s, node_d;
+  link_s = host_interfaces[sender];
+  link_d = host_interfaces[dest];
+  node_s = n1[link_s];
+  node_d = n1[link_d];
+
+  lu_in.open("Link_Util.txt");
+  if(!rt_in.is_open()) {
+        cout<<"error opening rt"<<endl;
+        return 0;
+  }
+  //read in the link utilisation
+  double time[LINKS];
+  int linkid[LINKS], linkutil[LINKS];
+  for(int i = 0; i < LINKS; i++){
+    //fscanf(fp3, "%lf\t%d\t%d", &time[i], &linkid[i], &linkutil[i]);
+    lu_in>>time[i]>>linkid[i]>>linkutil[i];
+  }
+
+  int temp0 = routingtable[node_s][node_d][0];
+  int temp1 = routingtable[node_s][node_d][1];
+  int temp  = linkutil[Find_Link(temp0, temp1, n1, n2)];
+  for(int i = 1; routingtable[node_s][node_d][i] != 0; i++){
+    temp0 = routingtable[node_s][node_d][i-1];
+    temp1 = routingtable[node_s][node_d][i];
+    if(temp > linkutil[Find_Link(temp0, temp1, n1, n2)])
+      temp = linkutil[Find_Link(temp0, temp1, n1, n2)];
+  }
+  //cout<<"find bw"<<endl;
+  rt_in.close();
+  tp_in.close();
+  eh_in.close();
+  lu_in.close();
+  return temp;
+}
+
+//Calculate the node number
+int CalcNodeNum(uint32_t address){
+  int num;
+  ifstream in;
+  num = (address - 167772162) / 256 ;
+  //cout<<"node number = "<<num<<endl;
+  //read endhost
+  in.open("internet2-fanout10/internet2-endhosts.txt");
+  if(!in.is_open()) {
+        cout<<"error opening calc"<<endl;
+        return 0;
+  }
+
+  int host_interfaces[110];
+  //int host_interfaceIdx[NODES];
+  int numhosts;
+  int host, link, idx;
+  //fscanf(fpc, "%d", &numhosts);
+  in>>numhosts;
+  for(int i=0; i<numhosts; i++)
+  {
+    //fscanf(fpc, "%d %d %d", &host, &link, &idx);
+    in>>host>>link>>idx;
+    host_interfaces[host] = link;
+    //host_interfaceIdx[host] = idx;
+  }
+  int n;
+  for(n = 10; host_interfaces[n] != num; n++)
+  {
+  }
+  //cout<<"n = "<<n<<endl;
+  in.close();
+  return n;
+}
+
+
 //Changed from Tcp-Socket-Base
 int
 TcpRC3Sack::Close (void)
@@ -403,14 +572,14 @@ TcpRC3Sack::Close (void)
   // First we check to see if there is any unread rx data
   // Bug number 426 claims we should send reset in this case.
   if (m_rxBuffer.Size () != 0)
-    { 
+    {
       SendRST ();
   //    return 0;
-    }    
-  if (m_txBuffer.SizeFromSequence (m_nextTxSequence) > 0) 
+    }
+  if (m_txBuffer.SizeFromSequence (m_nextTxSequence) > 0)
     { // App close with pending data must wait until all data transmitted
       m_txBuffer.DiscardUpTo(m_txBuffer.TailSequence());
-  }  
+  }
   return DoClose ();
 }
 
@@ -422,13 +591,13 @@ TcpRC3Sack::Send (Ptr<Packet> p, uint32_t flags)
   NS_LOG_FUNCTION (this << p);
   NS_ABORT_MSG_IF (flags, "use of flags is not supported in TcpSocketBase::Send()");
   if (m_state == ESTABLISHED || m_state == SYN_SENT || m_state == CLOSE_WAIT)
-    {    
+    {
       // Store the packet into Tx buffer
-      if (!m_txBuffer.Add (p)) 
+      if (!m_txBuffer.Add (p))
         { // TxBuffer overflow, send failed
           m_errno = ERROR_MSGSIZE;
           return -1;
-        }    
+        }
       // Submit the data to lower layers
       NS_LOG_LOGIC ("txBufSize=" << m_txBuffer.Size () << " state " << TcpStateName[m_state]);
       if (m_state == ESTABLISHED || m_state == CLOSE_WAIT)
@@ -436,14 +605,14 @@ TcpRC3Sack::Send (Ptr<Packet> p, uint32_t flags)
           SendPendingData (m_connected);
           if(!m_rc3Once)
               StartRLPLoop();
-        }    
+        }
       return p->GetSize ();
-    }    
-  else 
+    }
+  else
     { // Connection not established yet
       m_errno = ERROR_NOTCONN;
       return -1; // Send failure
-    }    
+    }
 }
 
 
@@ -460,16 +629,16 @@ TcpRC3Sack::ProcessListen (Ptr<Packet> packet, const TcpHeader& tcpHeader,
   // Fork a socket if received a SYN. Do nothing otherwise.
   // C.f.: the LISTEN part in tcp_v4_do_rcv() in tcp_ipv4.c in Linux kernel
   if (tcpflags != TcpHeader::SYN)
-    {    
+    {
       return;
-    }    
+    }
 
   // Call socket's notify function to let the server app know we got a SYN
   // If the server app refuses the connection, do nothing
   if (!NotifyConnectionRequest (fromAddress))
-    {    
+    {
       return;
-    }    
+    }
 
   MyPriorityTag tag;
   bool peeked = packet->PeekPacketTag(tag);
@@ -494,12 +663,13 @@ TcpRC3Sack::ProcessListen (Ptr<Packet> packet, const TcpHeader& tcpHeader,
                           packet, tcpHeader, fromAddress, toAddress);
 }
 
-
 /** Received a packet upon SYN_SENT */
 void
 TcpRC3Sack::ProcessSynSent (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
+  //ofstream off("debuging_text.txt", ios::app);
   NS_LOG_FUNCTION (this << tcpHeader);
+  uint32_t mycwnd = 0;
 
   /****SACK change****/
   //initializing score board
@@ -536,6 +706,17 @@ TcpRC3Sack::ProcessSynSent (Ptr<Packet> packet, const TcpHeader& tcpHeader)
            && m_nextTxSequence + SequenceNumber32 (1) == tcpHeader.GetAckNumber ())
     { // Handshake completed
       NS_LOG_INFO ("SYN_SENT -> ESTABLISHED");
+      mycwnd = Find_BW(CalcNodeNum(m_endPoint->GetLocalAddress().Get()), CalcNodeNum(m_endPoint->GetPeerAddress().Get()));
+      //cout<<"cwnd = "<<mycwnd<<endl;
+      //cout<<"segementSize = "<<m_segmentSize<<endl;
+      //off<<"SourceIP = "<<m_endPoint->GetLocalAddress()<<"\t";
+      //off<<"DestIP = "<<m_endPoint->GetPeerAddress()<<endl;
+      //cout<<"m_cWnd(synsent) = "<<m_cWnd<<endl;
+      //cout<<"initial_cwnd(synsent) = "<<m_initialCWnd<<endl;
+      if((double)mycwnd * (double)m_segmentSize  > m_cWnd)
+        m_cWnd = (uint32_t)((double)(mycwnd) * (double)m_segmentSize );
+      //cout<<"Rtt(synsent) = "<<m_rtt->GetCurrentEstimate()<<endl;
+      //cout<<"m_cWnd(synsent) = "<<m_cWnd<<endl;
       m_state = ESTABLISHED;
       m_connected = true;
       m_retxEvent.Cancel ();
@@ -559,6 +740,7 @@ TcpRC3Sack::ProcessSynSent (Ptr<Packet> packet, const TcpHeader& tcpHeader)
         }
       CloseAndNotify ();
     }
+  //off.close();
 }
 
 /** Received a packet upon SYN_RCVD */
@@ -566,13 +748,16 @@ void
 TcpRC3Sack::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
                                const Address& fromAddress, const Address& toAddress)
 {
+  uint32_t mycwnd;
+  //ofstream off("debuging_text.txt", ios::app);
+
   NS_LOG_FUNCTION (this << tcpHeader);
 
   // Extract the flags. PSH and URG are not honoured.
   /****SACK change****/
   //initializing score board
   m_scoreboard.CreateScoreBoard(m_txBuffer.Size(), m_segmentSize, m_retxThresh);
-  /*******************/ 
+  /*******************/
 
   uint8_t tcpflags = tcpHeader.GetFlags () & ~(TcpHeader::PSH | TcpHeader::URG);
 
@@ -584,11 +769,20 @@ TcpRC3Sack::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
       // handshake is completed nicely.
       NS_LOG_INFO ("SYN_RCVD -> ESTABLISHED");
       m_state = ESTABLISHED;
+      mycwnd = Find_BW(CalcNodeNum(m_endPoint->GetLocalAddress().Get()), CalcNodeNum(m_endPoint->GetPeerAddress().Get()));
+      //cout<<"m_cWnd(synrecv) = "<<m_cWnd<<endl;
+      if((double)mycwnd * (double)m_segmentSize > m_cWnd)
+        m_cWnd = (uint32_t)((double)mycwnd * (double)m_segmentSize);
+      //cout<<"initial_cwnd(synrecv) = "<<m_initialCWnd<<endl;
+      //cout<<"Rtt(synrecv) = "<<m_rtt->GetCurrentEstimate()<<endl;
+      //off<<"SourceIP = "<<m_endPoint->GetLocalAddress()<<"\t";
+      //off<<"DestIP = "<<m_endPoint->GetPeerAddress()<<endl;
+      //cout<<"m_cWnd(synrecv) = "<<m_cWnd<<endl;
       m_connected = true;
       m_retxEvent.Cancel ();
       m_highTxMark = ++m_nextTxSequence;
       m_txBuffer.SetHeadSequence (m_nextTxSequence);
-      
+
       if (m_endPoint)
         {
           m_endPoint->SetPeer (InetSocketAddress::ConvertFrom (fromAddress).GetIpv4 (),
@@ -607,7 +801,7 @@ TcpRC3Sack::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
       // As this connection is established, the socket is available to send data now
       if (GetTxAvailable () > 0)
         {
-      
+
           NotifySend (GetTxAvailable ());
           StartRLPLoop();
         }
@@ -657,6 +851,7 @@ TcpRC3Sack::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
         }
       CloseAndNotify ();
     }
+    //off.close();
 }
 
 /****SACK change****/
@@ -671,8 +866,8 @@ TcpRC3Sack::FillSackStack(SequenceNumber32 seqno)
             leftEdge = leftEdge - m_segmentSize;
         else
             break;
-    } 
-   
+    }
+
 
 
     SequenceNumber32 rightEdge = seqno + m_segmentSize;
@@ -682,11 +877,11 @@ TcpRC3Sack::FillSackStack(SequenceNumber32 seqno)
             rightEdge = rightEdge + m_segmentSize;
         else
             break;
-    } 
+    }
 
     //TODO: Take care of case where packets are not multiples of MSS
-    
-    
+
+
     SackStackEntry ss_entry;
     ss_entry.left = leftEdge;
     ss_entry.right = rightEdge;
@@ -733,10 +928,10 @@ TcpRC3Sack::ReceivedData (Ptr<Packet> p, const TcpHeader& tcpHeader)
   bool peeked = p->PeekPacketTag(tag);
   NS_ASSERT(peeked);
   NS_ASSERT(tag.GetTypeId().GetName() == "ns3::MyPriorityTag");
-  
+
   SequenceNumber32 expectedSeq = m_rxBuffer.NextRxSequence ();
   NS_LOG_INFO("Received Data "<<tcpHeader.GetSequenceNumber()<<"\t"<<(uint16_t)tag.GetPriority()<<"\n");
-  
+
   if(tag.GetPriority() > 0){ //
 
     //std::cout << "RECEIVED LOW PRIORITY PACKET. " << tcpHeader.GetSequenceNumber() << std::endl;
@@ -746,9 +941,9 @@ TcpRC3Sack::ReceivedData (Ptr<Packet> p, const TcpHeader& tcpHeader)
     }
 
     /****SACK change****/
-    FillSackStack(tcpHeader.GetSequenceNumber());  
+    FillSackStack(tcpHeader.GetSequenceNumber());
     //PrintSackStack(std::cerr);
-    /*******************/ 
+    /*******************/
 
     SendEmptyPacket (TcpHeader::ACK, tag.GetPriority(), true);
 
@@ -770,12 +965,12 @@ TcpRC3Sack::ReceivedData (Ptr<Packet> p, const TcpHeader& tcpHeader)
     // Now send a new ACK packet acknowledging all received and delivered data
     if (m_rxBuffer.Size () > m_rxBuffer.Available () || m_rxBuffer.NextRxSequence () > expectedSeq + p->GetSize ())
       { // A gap exists in the buffer, or we filled a gap: Always ACK
-    
+
         /****SACK change****/
-        FillSackStack(tcpHeader.GetSequenceNumber());  
+        FillSackStack(tcpHeader.GetSequenceNumber());
         //PrintSackStack(std::cerr);
-        /*******************/ 
-        
+        /*******************/
+
         SendEmptyPacket (TcpHeader::ACK, 0, true);
       }
     else
@@ -833,8 +1028,8 @@ TcpRC3Sack::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
   bool peeked = p->PeekPacketTag(tag);
   NS_ASSERT(peeked);
   NS_ASSERT(tag.GetTypeId().GetName() == "ns3::MyPriorityTag");
-    
-  if(tag.GetPriority() > 0){ 
+
+  if(tag.GetPriority() > 0){
     /****SACK change****/
     //m_scoreboard.Print(std::cerr, m_nextTxSequence, m_txBuffer.HeadSequence());
     /******************/
@@ -844,9 +1039,9 @@ TcpRC3Sack::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
   }else{
     std::cout << "Priorityless ACK?? Not possible" << std::endl;
   }
- 
 
-  
+
+
   NS_LOG_INFO("Received Ack "<<tcpHeader.GetAckNumber()<<"\t"<<(uint16_t)tag.GetPriority()<<"\t"<<m_nextTxSequence<<"\t"<<m_txBuffer.HeadSequence()<<"\t"<<m_highTxMark<<"\n");
 
   if(m_logAcks)
@@ -894,7 +1089,7 @@ TcpRC3Sack::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
               ofs.close();
             }
 
-            m_bumpedSeq = tcpHeader.GetAckNumber(); 
+            m_bumpedSeq = tcpHeader.GetAckNumber();
             m_nextTxSequence = tcpHeader.GetAckNumber();
             m_highTxMark = std::max(m_highTxMark, m_nextTxSequence);
             NewAck(tcpHeader.GetAckNumber());
@@ -903,8 +1098,8 @@ TcpRC3Sack::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
       }
       else if ((m_bumpedSeq > SequenceNumber32(0)) && (tcpHeader.GetAckNumber() == m_bumpedSeq) && (rc3_p2))
       {
-        NS_LOG_INFO("In bumped up phase (assuming all same acks in this phase are new)! " << tcpHeader.GetAckNumber() << " " << m_txBuffer.HeadSequence()<< " " << m_nextTxSequence ); 
-       
+        NS_LOG_INFO("In bumped up phase (assuming all same acks in this phase are new)! " << tcpHeader.GetAckNumber() << " " << m_txBuffer.HeadSequence()<< " " << m_nextTxSequence );
+
        m_highTxMark = std::max(m_highTxMark, m_nextTxSequence);
        NewAck(tcpHeader.GetAckNumber());
        return;
@@ -953,7 +1148,7 @@ TcpRC3Sack::SendDataPacket (SequenceNumber32 seq, uint32_t maxSize, bool withAck
   NS_LOG_FUNCTION (this << seq << maxSize << withAck);
   Ptr<Packet> p = m_txBuffer.CopyFromSequence (maxSize, seq);
   uint32_t sz = p->GetSize (); // Size of packet
-  uint8_t flags = withAck ? TcpHeader::ACK : 0; 
+  uint8_t flags = withAck ? TcpHeader::ACK : 0;
   uint32_t remainingData = m_txBuffer.SizeFromSequence (seq + SequenceNumber32 (sz));
 
   MyPriorityTag tag;
@@ -969,16 +1164,16 @@ TcpRC3Sack::SendDataPacket (SequenceNumber32 seq, uint32_t maxSize, bool withAck
    * the corresponding tags will be read.
    */
   if (IsManualIpTos ())
-    {    
+    {
       SocketIpTosTag ipTosTag;
-      ipTosTag.SetTos (GetIpTos ()); 
+      ipTosTag.SetTos (GetIpTos ());
       p->AddPacketTag (ipTosTag);
-    }    
+    }
 
   if (IsManualIpv6Tclass ())
-    {    
+    {
       SocketIpv6TclassTag ipTclassTag;
-      ipTclassTag.SetTclass (GetIpv6Tclass ()); 
+      ipTclassTag.SetTclass (GetIpv6Tclass ());
       p->AddPacketTag (ipTclassTag);
     }
 
@@ -1084,42 +1279,42 @@ TcpRC3Sack::SendEmptyPacket (uint8_t flags, uint8_t priority, bool withSack)
    * the corresponding tags will be read.
    */
   if (IsManualIpTos ())
-    {    
+    {
       SocketIpTosTag ipTosTag;
-      ipTosTag.SetTos (GetIpTos ()); 
+      ipTosTag.SetTos (GetIpTos ());
       p->AddPacketTag (ipTosTag);
-    }    
+    }
 
   if (IsManualIpv6Tclass ())
-    {    
+    {
       SocketIpv6TclassTag ipTclassTag;
-      ipTclassTag.SetTclass (GetIpv6Tclass ()); 
+      ipTclassTag.SetTclass (GetIpv6Tclass ());
       p->AddPacketTag (ipTclassTag);
-    }    
+    }
 
   if (IsManualIpTtl ())
-    {    
+    {
       SocketIpTtlTag ipTtlTag;
-      ipTtlTag.SetTtl (GetIpTtl ()); 
+      ipTtlTag.SetTtl (GetIpTtl ());
       p->AddPacketTag (ipTtlTag);
-    }    
+    }
 
   if (IsManualIpv6HopLimit ())
-    {    
+    {
       SocketIpv6HopLimitTag ipHopLimitTag;
-      ipHopLimitTag.SetHopLimit (GetIpv6HopLimit ()); 
+      ipHopLimitTag.SetHopLimit (GetIpv6HopLimit ());
       p->AddPacketTag (ipHopLimitTag);
-    }    
+    }
 
   if (m_endPoint == 0 && m_endPoint6 == 0)
-    {    
+    {
       NS_LOG_WARN ("Failed to send empty packet due to null endpoint");
       return;
-    }    
+    }
   if (flags & TcpHeader::FIN)
-    {    
+    {
       flags |= TcpHeader::ACK;
-    }    
+    }
   else if (m_state == FIN_WAIT_1 || m_state == LAST_ACK || m_state == CLOSING)
     {
       ++s;
@@ -1226,7 +1421,7 @@ TcpRC3Sack::SendPendingData (bool withAck)
 
   /***SACK CHANGE***/
   uint32_t w = AvailableWindow();
- 
+
   while(w > 0)
   {
       SequenceNumber32 seqNo = m_scoreboard.GetNextAggSegment(m_nextTxSequence);
@@ -1237,7 +1432,7 @@ TcpRC3Sack::SendPendingData (bool withAck)
 
       if(seqNo >= m_txBuffer.TailSequence())
         break;
-      
+
       NS_LOG_LOGIC("TcpRC3Sack " << this << " SendPendingData" <<
                     " w " << w <<
                     " rxwin " << m_rWnd <<
@@ -1292,7 +1487,7 @@ TcpRC3Sack::SendPendingData (bool withAck)
   }
 
   NS_LOG_LOGIC ("SendPendingData sent " << nPacketsSent << " packets; next sequence " << m_nextTxSequence << ":)");
- 
+
   return (nPacketsSent > 0);
 }
 
@@ -1301,7 +1496,7 @@ TcpRC3Sack::SendPendingData (bool withAck)
 void
 TcpRC3Sack::StartRLPLoop()
 {
-  
+
    for(int i = 0; i < int(m_txBuffer.Size()/m_segmentSize); i++){
       if(!SendLowPriorityPacket())
             break;
@@ -1313,16 +1508,16 @@ bool
 TcpRC3Sack::SendLowPriorityPacket()
 {
   if(m_state != ESTABLISHED) return false;
-  
+
   if(!rc3_p2) return false;
-  
+
   p2_block_max = m_txBuffer.TailSequence().GetValue();
 
 
   uint32_t maxSize = m_segmentSize;
- 
+
   SequenceNumber32 seq(p2_block_max - p2_block_bytes_sent - maxSize);
-  
+
   if(seq + maxSize <= m_nextTxSequence)
   {
     NS_LOG_INFO("***Priority 0 took care of all data***");
@@ -1343,7 +1538,7 @@ TcpRC3Sack::SendLowPriorityPacket()
 
   NS_LOG_FUNCTION (this << seq << maxSize );
   Ptr<Packet> p = m_txBuffer.CopyFromSequence (maxSize, seq);
-  uint8_t flags =  0; 
+  uint8_t flags =  0;
 
 
   uint8_t priority = 1;
@@ -1364,16 +1559,16 @@ TcpRC3Sack::SendLowPriorityPacket()
 
   NS_LOG_INFO(this<<"Sending rc3 data "<<seq<<" "<<packetCounter<<" "<<tag.GetId()<<" "<<(uint16_t)tag.GetPriority());
   if (IsManualIpTos ())
-    {    
+    {
       SocketIpTosTag ipTosTag;
-      ipTosTag.SetTos (GetIpTos ()); 
+      ipTosTag.SetTos (GetIpTos ());
       p->AddPacketTag (ipTosTag);
-    }    
+    }
 
   if (IsManualIpv6Tclass ())
-    {    
+    {
       SocketIpv6TclassTag ipTclassTag;
-      ipTclassTag.SetTclass (GetIpv6Tclass ()); 
+      ipTclassTag.SetTclass (GetIpv6Tclass ());
       p->AddPacketTag (ipTclassTag);
     }
 
